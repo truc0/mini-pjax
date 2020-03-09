@@ -1,0 +1,14 @@
+{
+  "name": "mini-pjax",
+  "version": "1.0.0",
+  "description": "Mini pjax with vanilla javascript",
+  "main": "index.js",
+  "repository": "https://github.com/wozuishuai13768/mini-pjax",
+  "author": "truco <tszlungchung13768@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
+  }
+}
