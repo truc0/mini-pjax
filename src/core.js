@@ -1,11 +1,23 @@
 class PJAX {
 
-  constructor(srcElements, container) {
+  constructor(srcElements, containerID) {
+    if (!isSupported) {
+      this.isDisabled = true
+    }
+
     this.srcElements = this.toDOM(srcElements)
-    this.container = this.toDOM(container)
     this.hostname = window.location.hostname
 
+    if (typeof containerID !== 'string') {
+      this.container = containerID
+      this.containerID = this.container.getAttribute('ID')
+    } else {
+      this.containerID = containerID
+      this.container = this.toDOM(containerID)
+    }
+
     this.stack = []
+    this.isDisabled = false
 
     this.beforeRequestHooks = []
     this.beforeMountHooks = []
@@ -27,6 +39,10 @@ class PJAX {
       }
 
       el.addEventListener('click', event => {
+        if (this.isDisabled) {
+          return  
+        }
+
         event.preventDefault()
         this.fetch(url)
       })
@@ -38,13 +54,6 @@ class PJAX {
    */
   isInternal(aTag) {
     return aTag.host === window.location.host
-  }
-
-  /**
-   * setup hooks for nomal pjax request 
-   */
-  setupHooks() {
-  
   }
 
   /**
@@ -76,7 +85,7 @@ class PJAX {
   }
 
   /**
-   * register beforeMount hook
+   * register mounted hooks 
    * @param {function} func function to be execute
    * @return {undefined} nothing
    */
@@ -85,23 +94,53 @@ class PJAX {
   }
 
   /**
+   * parse text to DOM 
+   * @param {Response} res the response object
+   * @return {DOMElement} the parsed DOM
+   */
+  useDefaultParser(res) {
+    if (!this.parser) {
+      this.parser = new DOMParser()
+    }
+    return this.parser.parseFromString(res)
+  }
+
+  /**
+   * selector container from new DOM 
+   * @param {string} selector the selector 
+   * @return {function} a function that recieve a DOM element as a argument
+   *  and return the selected element in this DOM element
+   */
+  useSelector(selector=this.containerID) {
+    const getElement = dom => dom.querySelector(selector)
+    return getElement
+  }
+
+  /**
+   * convert response to response.text 
+   * @param {Response} res response 
+   * @return response.text()
+   */
+  useToText(res) {
+    return res.text()
+  }
+
+  /**
    * fetch data from url with hooks
    * @param {string} url url to be fetched
    * @return {Promise} a promise 
    */
   fetch(url) {
-    let req = new Request(url)
-
-    for (const hook of this.beforeSendHooks) {
-      req = hook(req)
+    let reqOptions = {
+      url: url,
+      params: {}
     }
 
-    let response = fetch(req)
+    for (const hook of this.beforeSendHooks) {
+      reqOptions = hook(reqOptions)
+    }
 
-    response.then(res => ({ 
-      response: res,
-      parser: parser
-    }))
+    let response = fetch(reqOptions.url, reqOptions.params)
 
     for (const hook of this.beforeMountHooks) {
       response.then(hook)
