@@ -7,6 +7,10 @@
   "author": "truco <tszlungchung13768@gmail.com>",
   "license": "MIT",
   "private": false,
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev:build": "webpack --mode=development"
+  },
   "devDependencies": {
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
