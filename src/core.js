@@ -5,9 +5,11 @@ class PJAX {
     this.container = this.toDOM(container)
     this.hostname = window.location.hostname
 
-    this.beforeSendHooks = []
-    this.beforeParseHooks = []
+    this.stack = []
+
+    this.beforeRequestHooks = []
     this.beforeMountHooks = []
+    this.mountedHooks = []
 
     this.setupEvents()
   }
@@ -32,6 +34,13 @@ class PJAX {
   }
 
   /**
+   * check if href of a `a` tag is an internal link 
+   */
+  isInternal(aTag) {
+    return aTag.host === window.location.host
+  }
+
+  /**
    * setup hooks for nomal pjax request 
    */
   setupHooks() {
@@ -53,17 +62,8 @@ class PJAX {
    * @param {function} func function to be execute
    * @return {undefined} nothing
    */
-  beforeSend(func) {
+  beforeRequest(func) {
     this.beforeSendHooks.push(func) 
-  }
-
-  /**
-   * register beforeParse hook
-   * @param {function} func function to be execute
-   * @return {undefined} nothing
-   */
-  beforeParse(func) {
-    this.beforeParseHooks.push(func) 
   }
 
   /**
@@ -73,6 +73,15 @@ class PJAX {
    */
   beforeMount(func) {
     this.beforeMountHooks.push(func) 
+  }
+
+  /**
+   * register beforeMount hook
+   * @param {function} func function to be execute
+   * @return {undefined} nothing
+   */
+  mounted(func) {
+    this.mountedHooks.push(func) 
   }
 
   /**
@@ -87,7 +96,6 @@ class PJAX {
       req = hook(req)
     }
 
-    let parser = new DOMParser()
     let response = fetch(req)
 
     response.then(res => ({ 
@@ -95,21 +103,19 @@ class PJAX {
       parser: parser
     }))
 
-    for (const hook of this.beforeParseHooks) {
-      response.then(hook)
-    }
-
-    response.then(data => {
-      return data.parser(data.response, 'text/html')
-    })
-
     for (const hook of this.beforeMountHooks) {
       response.then(hook)
     }
 
-    response.then(html => {
-      this.container.innerHTML = html
+    response.then(newContainer => {
+      this.container.innerHTML = newContainer.innerHTML
+      this.stack.push(newContainer)
+      return newContainer
     })
+
+    for (const hook of this.mountedHooks) {
+      response.then(hook)
+    }
 
     return response
   }
