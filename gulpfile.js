@@ -1,4 +1,5 @@
 const gulp = require('gulp')
+const minify = require('gulp-minify')
 const rename = require('gulp-rename')
 const browserSync = require('browser-sync')
 
@@ -24,6 +25,7 @@ let buildScripts = callback => {
 
   src('./index.js')
     .pipe(rename('mini-pjax.js'))
+    .pipe(minify())
     .pipe(dest('./dist/'))
     .on('end', callback)
 }
