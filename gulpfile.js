@@ -1,6 +1,5 @@
 const gulp = require('gulp')
 const rename = require('gulp-rename')
-const uglify = require('gulp-uglify')
 const browserSync = require('browser-sync')
 
 const browser = browserSync.create()
@@ -10,24 +9,34 @@ const browserOptions = {
   }
 }
 
-let buildScripts = callback => {
+let buildDevScripts = callback => {
   const { src, dest } = gulp
-  return src('./index.js')
+
+  src('./index.js')
     .pipe(rename('mini-pjax.js'))
-  //.pipe(uglify())
     .pipe(dest('./dist/'))
     .pipe(dest('./example/js/'))
+    .on('end', callback)
+}
+
+let buildScripts = callback => {
+  const { src, dest } = gulp
+
+  src('./index.js')
+    .pipe(rename('mini-pjax.js'))
+    .pipe(dest('./dist/'))
+    .on('end', callback)
 }
 
 let watcher = () => {
   browser.init(browserOptions)
 
-  gulp.watch(['./index.js'], buildScripts)
+  gulp.watch(['./index.js'], buildDevScripts)
     .on('change', browser.reload)
 
   gulp.watch('./example/**/*.html')
     .on('change', browser.reload)
 }
 
-gulp.task('default', watcher)
+gulp.task('development', watcher)
 gulp.task('build', buildScripts)

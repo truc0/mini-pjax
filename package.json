@@ -8,13 +8,12 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "build": "webpack --mode=production",
-    "dev:build": "webpack --mode=development"
+    "build": "gulp build",
+    "dev": "gulp development"
   },
   "devDependencies": {
     "browser-sync": "^2.26.7",
     "gulp": "^4.0.2",
-    "gulp-rename": "^2.0.0",
-    "gulp-uglify": "^3.0.2"
+    "gulp-rename": "^2.0.0"
   }
 }
