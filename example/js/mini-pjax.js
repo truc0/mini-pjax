@@ -18,7 +18,7 @@ class PJAX {
     }
 
     this.stack = []
-    this.uid = this.uuid() // CHANGE IT LATER
+    this.uid = this.uuid()
     this.isDisabled = false
 
     this.middlewares = []
@@ -96,6 +96,10 @@ class PJAX {
    */
   bindPopState() {
     window.addEventListener('popstate', event => {
+      if (!event.state || event.state.uid !== this.uid) {
+        return   
+      }
+
       let stackID = event.state.stackID
       event.stack = this.stack[stackID]
 

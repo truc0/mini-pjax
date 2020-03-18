@@ -4,6 +4,11 @@ class PJAX {
       this.isDisabled = true
     }
 
+    if (typeof srcElements === 'string') {
+      this.srcSelector = srcElements
+    } else {
+      this.srcSelector = null
+    }
     this.srcElements = this.toDOM(srcElements)
     this.hostname = window.location.hostname
 
@@ -96,6 +101,10 @@ class PJAX {
    */
   bindPopState() {
     window.addEventListener('popstate', event => {
+      if (!event.state || event.state.uid !== this.uid) {
+        return   
+      }
+
       let stackID = event.state.stackID
       event.stack = this.stack[stackID]
 
@@ -227,6 +236,11 @@ class PJAX {
   mount(context) {
     if (!context.dom) {
       throw Error('PJAX.mount: context.dom not found!') 
+    }
+    
+    // setup event for src elements in new dom
+    if (this.srcSelector) {
+      this.setupEvents(context.dom.querySelectorAll(this.srcSelector))
     }
 
     let content = {}
