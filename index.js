@@ -45,6 +45,12 @@ class PJAX {
         
         // set up base context
         const context = {
+          state: {
+            info: {
+              pos: {}
+            },
+            uid: null
+          },
           meta: {
             uid: this.uid
           },
@@ -128,13 +134,34 @@ class PJAX {
     let prevContent = container.innerHTML
     container.innerHTML = resContainer.innerHTML
 
-    history.pushState({
-      uid: context.meta.uid,
-      info: {
-        container: context.info.containerID,
-        content: prevContent
-      }
-    }, '', context.request.url)
+    context.state.info = {
+      container: context.info.containerID,
+      content: prevContent
+    }
+
+    return context
+  }
+
+  /**
+   * [MIDDLEWARE]
+   * do pushState to history
+   */
+  pushState(context) {
+    if (!context.state) {
+      throw Error('PJAX.pushState: context.state not found!')
+    }
+
+    let title = context.state.title || document.title
+    let url = context.state.url || context.request.url
+    let pos = {
+      x: window.pageXOffset,
+      y: window.pageYOffset
+    }
+
+    context.state.uid = context.meta.uid
+    context.state.info.pos = context.state.info.pos || pos
+
+    history.pushState(context.state, title, url)
 
     return context
   }

@@ -19,9 +19,10 @@
     <script src="./js/mini-pjax.js"></script>
     <script>
       let pjax = PJAX('a', '#container')
-      pjax.use(pjax.request())
-      pjax.use(pjax.parse())
-      pjax.use(pjax.mount())
+      pjax.use(pjax.request)
+      pjax.use(pjax.parse)
+      pjax.use(pjax.mount)
+      pjax.use(pjax.pushState)
     </script>
     <link rel="stylesheet" href="./css/style.css" type="text/css" media="all">
   </body>
